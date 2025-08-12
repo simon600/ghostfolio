@@ -131,6 +131,7 @@ export class GfAssistantComponent implements OnChanges, OnDestroy, OnInit {
   @Input() deviceType: string;
   @Input() hasPermissionToAccessAdminControl: boolean;
   @Input() hasPermissionToChangeDateRange: boolean;
+  @Input() hasPermissionToChangeCurrency: boolean;
   @Input() hasPermissionToChangeFilters: boolean;
   @Input() info: InfoItem;
   @Input() user: User;
@@ -203,6 +204,14 @@ export class GfAssistantComponent implements OnChanges, OnDestroy, OnInit {
         type: 'ASSET_CLASS'
       };
     });
+
+    this.filterForm
+      .get('baseCurrency')
+      .valueChanges.pipe(takeUntil(this.unsubscribeSubject))
+      .subscribe(() => {
+        this.onApplyFilters();
+        this.onCloseAssistant();
+      });
 
     this.searchFormControl.valueChanges
       .pipe(
@@ -429,6 +438,8 @@ export class GfAssistantComponent implements OnChanges, OnDestroy, OnInit {
 
     this.filterForm.disable({ emitEvent: false });
 
+    this.filterForm.get('baseCurrency').enable({ emitEvent: false });
+
     this.tags =
       this.user?.tags
         ?.filter(({ isUsed }) => {
@@ -510,7 +521,13 @@ export class GfAssistantComponent implements OnChanges, OnDestroy, OnInit {
 
         if (this.hasPermissionToChangeFilters) {
           this.filterForm.enable({ emitEvent: false });
+        } else {
+          this.filterForm.get('account').disable({ emitEvent: false });
+          this.filterForm.get('assetClass').disable({ emitEvent: false });
+          this.filterForm.get('holding').disable({ emitEvent: false });
+          this.filterForm.get('tag').disable({ emitEvent: false });
         }
+        this.filterForm.get('baseCurrency').enable({ emitEvent: false });
 
         this.changeDetectorRef.markForCheck();
       });
@@ -543,8 +560,6 @@ export class GfAssistantComponent implements OnChanges, OnDestroy, OnInit {
         type: 'TAG'
       }
     ]);
-
-    this.onCloseAssistant();
   }
 
   public onChangeDateRange(dateRangeString: string) {

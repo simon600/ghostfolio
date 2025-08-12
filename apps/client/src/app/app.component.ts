@@ -60,6 +60,7 @@ export class AppComponent implements OnDestroy, OnInit {
   public hasPermissionForSubscription: boolean;
   public hasPermissionToAccessFearAndGreedIndex: boolean;
   public hasPermissionToChangeDateRange: boolean;
+  public hasPermissionToChangeCurrency: boolean;
   public hasPermissionToChangeFilters: boolean;
   public hasPromotion = false;
   public hasTabs = false;
@@ -176,7 +177,10 @@ export class AppComponent implements OnDestroy, OnInit {
           this.hasPermissionToChangeDateRange = false;
         }
 
-        if (
+        if (this.currentRoute === internalRoutes.home.path && !this.currentSubRoute) {
+          this.hasPermissionToChangeCurrency = true;
+          this.hasPermissionToChangeFilters = false;
+        } else if (
           (this.currentRoute === internalRoutes.home.path &&
             this.currentSubRoute ===
               internalRoutes.home.subRoutes.holdings.path) ||
@@ -192,8 +196,10 @@ export class AppComponent implements OnDestroy, OnInit {
             this.currentSubRoute ===
               internalRoutes.home.subRoutes.holdings.path)
         ) {
+          this.hasPermissionToChangeCurrency = true;
           this.hasPermissionToChangeFilters = true;
         } else {
+          this.hasPermissionToChangeCurrency = false;
           this.hasPermissionToChangeFilters = false;
         }
 

@@ -40,7 +40,7 @@ export class PortfolioPerformanceComponent implements OnChanges {
   @Input() performance: PortfolioPerformance;
   @Input() precision: number;
   @Input() showDetails: boolean;
-  @Input() unit: string;
+  @Input() baseCurrency: string;
   @Input() user: User;
 
   @ViewChild('value') value: ElementRef;

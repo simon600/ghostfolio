@@ -69,6 +69,7 @@ export class HeaderComponent implements OnChanges {
   @Input() currentRoute: string;
   @Input() deviceType: string;
   @Input() hasPermissionToChangeDateRange: boolean;
+  @Input() hasPermissionToChangeCurrency: boolean;
   @Input() hasPermissionToChangeFilters: boolean;
   @Input() hasPromotion: boolean;
   @Input() hasTabs: boolean;

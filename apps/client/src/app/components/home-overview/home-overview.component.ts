@@ -59,7 +59,7 @@ export class GfHomeOverviewComponent implements OnDestroy, OnInit {
   public routerLinkPortfolioActivities =
     internalRoutes.portfolio.subRoutes.activities.routerLink;
   public showDetails = false;
-  public unit: string;
+  
   public user: User;
 
   private unsubscribeSubject = new Subject<void>();
@@ -95,7 +95,7 @@ export class GfHomeOverviewComponent implements OnDestroy, OnInit {
       !this.user.settings.isRestrictedView &&
       this.user.settings.viewMode !== 'ZEN';
 
-    this.unit = this.showDetails ? this.user.settings.baseCurrency : '%';
+    
 
     this.impersonationStorageService
       .onChangeHasImpersonation()

@@ -63,5 +63,13 @@
         />
       </div>
     </div>
+    <div class="row mt-2">
+      <div class="col text-center">
+        <h5 class="text-muted">
+          {{ performance.currentNetWorth | currency: user.settings.baseCurrency }}
+          <span class="ml-2" i18n>Total Net Worth</span>
+        </h5>
+      </div>
+    </div>
   }
 </div>

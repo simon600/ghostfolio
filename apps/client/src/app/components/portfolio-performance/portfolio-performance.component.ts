@@ -6,7 +6,8 @@ import {
 } from '@ghostfolio/common/helper';
 import {
   PortfolioPerformance,
-  ResponseError
+  ResponseError,
+  User
 } from '@ghostfolio/common/interfaces';
 
 import {
@@ -40,6 +41,7 @@ export class PortfolioPerformanceComponent implements OnChanges {
   @Input() precision: number;
   @Input() showDetails: boolean;
   @Input() unit: string;
+  @Input() user: User;
 
   @ViewChild('value') value: ElementRef;
 

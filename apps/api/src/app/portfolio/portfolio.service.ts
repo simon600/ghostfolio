@@ -652,8 +652,9 @@ export class PortfolioService {
     }
 
     if (filters?.length === 0 || isFilteredByAccount || isFilteredByCash) {
-      const cashPositions = this.getCashPositions({
+      const cashPositions = await this.getCashPositions({
         cashDetails,
+        dateRange,
         userCurrency,
         value: filteredValueInBaseCurrency
       });
@@ -1541,12 +1542,66 @@ export class PortfolioService {
     return { markets, marketsAdvanced };
   }
 
-  private getCashPositions({
+  private async calculateCashPerformance({
+    currency,
+    dateRange,
+    userCurrency
+  }: {
+    currency: string;
+    dateRange: DateRange;
+    userCurrency: string;
+  }) {
+    if (currency === userCurrency) {
+      return {
+        netPerformance: 0,
+        netPerformancePercent: 0,
+        netPerformancePercentWithCurrencyEffect: 0,
+        netPerformanceWithCurrencyEffect: 0
+      };
+    }
+
+    const { endDate, startDate } = getIntervalFromDateRange(dateRange);
+
+    const [
+      currentExchangeRate,
+      historicalExchangeRate,
+      historicalExchangeRates
+    ] = await Promise.all([
+      this.exchangeRateDataService.getExchangeRate(currency, userCurrency),
+      this.exchangeRateDataService.getExchangeRate(
+        currency,
+        userCurrency,
+        startDate
+      ),
+      this.exchangeRateDataService.getHistorical([
+        {
+          symbol: `${currency}${userCurrency}`
+        }
+      ])
+    ]);
+
+    const netPerformance = new Big(currentExchangeRate).minus(
+      historicalExchangeRate
+    );
+
+    const netPerformancePercent = netPerformance.div(historicalExchangeRate);
+
+    return {
+      netPerformance: netPerformance.toNumber(),
+      netPerformancePercent: netPerformancePercent.toNumber(),
+      netPerformancePercentWithCurrencyEffect: netPerformancePercent.toNumber(),
+      netPerformanceWithCurrencyEffect: netPerformance.toNumber()
+    };
+  }
+
+  private async getCashPositions({
     cashDetails,
+    dateRange,
     userCurrency,
     value
   }: {
     cashDetails: CashDetails;
+    dateRange: DateRange;
     userCurrency: string;
     value: Big;
   }) {
@@ -1586,6 +1641,25 @@ export class PortfolioService {
             .div(value)
             .toNumber()
         : 0;
+
+      const {
+        netPerformance,
+        netPerformancePercent,
+        netPerformancePercentWithCurrencyEffect,
+        netPerformanceWithCurrencyEffect
+      } = await this.calculateCashPerformance({
+        currency: cashPositions[symbol].currency,
+        dateRange,
+        userCurrency
+      });
+
+      cashPositions[symbol] = {
+        ...cashPositions[symbol],
+        netPerformance,
+        netPerformancePercent,
+        netPerformancePercentWithCurrencyEffect,
+        netPerformanceWithCurrencyEffect
+      };
     }
 
     return cashPositions;
@@ -1687,26 +1761,26 @@ export class PortfolioService {
   }): PortfolioPosition {
     return {
       currency,
-      allocationInPercentage: 0,
+      allocationInPercentage: undefined,
       assetClass: AssetClass.LIQUIDITY,
       assetSubClass: AssetSubClass.CASH,
       countries: [],
       dataSource: undefined,
       dateOfFirstActivity: undefined,
-      dividend: 0,
-      grossPerformance: 0,
-      grossPerformancePercent: 0,
-      grossPerformancePercentWithCurrencyEffect: 0,
-      grossPerformanceWithCurrencyEffect: 0,
+      dividend: undefined,
+      grossPerformance: undefined,
+      grossPerformancePercent: undefined,
+      grossPerformancePercentWithCurrencyEffect: undefined,
+      grossPerformanceWithCurrencyEffect: undefined,
       holdings: [],
       investment: balance,
-      marketPrice: 0,
+      marketPrice: undefined,
       name: currency,
-      netPerformance: 0,
-      netPerformancePercent: 0,
-      netPerformancePercentWithCurrencyEffect: 0,
-      netPerformanceWithCurrencyEffect: 0,
-      quantity: 0,
+      netPerformance: undefined,
+      netPerformancePercent: undefined,
+      netPerformancePercentWithCurrencyEffect: undefined,
+      netPerformanceWithCurrencyEffect: undefined,
+      quantity: undefined,
       sectors: [],
       symbol: currency,
       tags: [],

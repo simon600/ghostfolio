@@ -680,6 +680,7 @@ export class PortfolioService {
     ) {
       const emergencyFundCashPositions = this.getCashPositions({
         cashDetails,
+        dateRange,
         userCurrency,
         value: filteredValueInBaseCurrency
       });

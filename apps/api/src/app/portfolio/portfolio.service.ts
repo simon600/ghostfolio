@@ -1560,31 +1560,26 @@ export class PortfolioService {
       };
     }
 
-    const { endDate, startDate } = getIntervalFromDateRange(dateRange);
+    const { startDate } = getIntervalFromDateRange(dateRange);
 
-    const [
-      currentExchangeRate,
-      historicalExchangeRate,
-      historicalExchangeRates
-    ] = await Promise.all([
-      this.exchangeRateDataService.getExchangeRate(currency, userCurrency),
-      this.exchangeRateDataService.getExchangeRate(
+    const [currentExchangeRate, historicalExchangeRate] = await Promise.all([
+      this.exchangeRateDataService.toCurrency(1, currency, userCurrency),
+      this.exchangeRateDataService.toCurrencyAtDate(
+        1,
         currency,
         userCurrency,
         startDate
-      ),
-      this.exchangeRateDataService.getHistorical([
-        {
-          symbol: `${currency}${userCurrency}`
-        }
-      ])
+      )
     ]);
 
     const netPerformance = new Big(currentExchangeRate).minus(
       historicalExchangeRate
     );
 
-    const netPerformancePercent = netPerformance.div(historicalExchangeRate);
+    const netPerformancePercent =
+      historicalExchangeRate === 0
+        ? new Big(0)
+        : netPerformance.div(historicalExchangeRate);
 
     return {
       netPerformance: netPerformance.toNumber(),
